@@ -1,0 +1,4 @@
+numpy
+sentinelhub
+tensorflow-cpu
+scikit-learn
