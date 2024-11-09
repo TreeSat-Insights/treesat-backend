@@ -1,4 +1,5 @@
-import os
+import logging
+
 from PIL import Image
 from fastapi import FastAPI
 import base64
@@ -8,7 +9,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 
+import src.bark_beetle_detector as bbd
+
 app = FastAPI()
+
+bark_beetle_detector = bbd.BarkBeetleDetector()
+
 
 # Middleware to add CSP headers
 class CSPMiddleware(BaseHTTPMiddleware):
@@ -35,17 +41,21 @@ app.add_middleware(
 def read_root():
     return {"message": "Pong"}
 
-@app.get("/scan/{x_pos}/{y_pos}")
-def read_item(x_pos: float, y_pos:float):
-    # image = Image.fromarray(array)
-    images = [ "caoria1.png", "caoria2.png", "caoria3.png"]
+@app.get("/scan/{latitude}/{longitude}")
+def read_item(latitude: float, longitude:float):
+    future_predictions, predictions = bark_beetle_detector.scan(latitude, longitude)
+
     encoded_images = []
-    for image in images:
-        images = Image.open(os.path.join("resources", image))
+    for prediction in predictions:
+        image = Image.fromarray(prediction)
+        logging.error(prediction.shape)
+        if image.mode != 'RGB':
+            image = image.convert("RGB")
 
         # Convert PIL Image to base64
         buffered = BytesIO()
-        images.save(buffered, format="PNG")  # Save image as PNG in a buffer
+        image.save(buffered, format="PNG")  # Save image as PNG in a buffer
         encoded_images.append(base64.b64encode(buffered.getvalue()).decode("utf-8"))
 
     return JSONResponse({"status": "success", "content": encoded_images})
+
