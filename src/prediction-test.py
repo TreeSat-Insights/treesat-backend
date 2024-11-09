@@ -28,7 +28,7 @@ resolution = 10
 bounding_box = BBox(bbox=[11.319652,46.502942, 11.348405,46.51892], crs=CRS.WGS84)
 betsiboka_size = bbox_to_dimensions(bounding_box, resolution=resolution)
 
-with open("eval_functions/tree_stress.js") as f:
+with open("../eval_functions/tree_stress.js") as f:
     tree_stress = f.read()
 
 today = datetime.date.today()
