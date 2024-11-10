@@ -1,5 +1,8 @@
 from sentinelhub import SHConfig, BBox, CRS
+import os
 config = SHConfig()
+config.sh_client_id = os.environ.get("SENTINEL_CLIENT_ID")
+config.sh_client_secret = os.environ.get("SENTINEL_CLIENT_SECRET")
 
 if not config.sh_client_id or not config.sh_client_secret:
     print("Warning! To use Process API, please provide the credentials (OAuth client ID and client secret).")
@@ -83,3 +86,11 @@ data = client.download(download_requests)
 images = np.array(data)
 
 print(images.shape)
+
+
+img = images[0]
+
+from statsmodels.tsa.arima.model import ARIMA
+
+arima_model = ARIMA(img, order=(5,1,0))
+arima_result = arima_model.fit()
